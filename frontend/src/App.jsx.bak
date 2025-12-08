@@ -1,0 +1,127 @@
+import React, { useEffect, useState } from 'react'
+import './App.css'
+
+// Normalize image URLs returned by the API so <img> can load them reliably.
+function normalizeUrl(u) {
+  if (!u) return null
+  let url = String(u).trim()
+
+  // strip possible css url(...) wrapper
+  url = url.replace(/^url\(['"]?/, '').replace(/['"]?\)$/, '')
+
+  // already absolute
+  if (/^https?:\/\//i.test(url)) return url
+
+  // protocol-relative
+  if (/^\/\//.test(url)) return 'https:' + url
+
+  // root-relative -> prefix nautiljon base
+  if (url.startsWith('/')) return 'https://www.nautiljon.com' + url
+
+  // relative paths -> try prefixing nautiljon
+  return 'https://www.nautiljon.com/' + url
+}
+
+function App() {
+  const [promoted, setPromoted] = useState([])
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setLoading(true)
+    Promise.all([
+      fetch('http://localhost:8080/promoted-selection?type=manga').then(r => r.json()),
+      fetch('http://localhost:8080/reviews?type=manga').then(r => r.json())
+    ])
+      .then(([promotedResp, reviewsResp]) => {
+        // L'API enveloppe la réponse dans { return: ... } d'après index.js
+        const promotedData = promotedResp && promotedResp.return ? promotedResp.return : promotedResp
+        const reviewsData = reviewsResp && reviewsResp.return ? reviewsResp.return : reviewsResp
+
+        const promotedList = promotedData.list || promotedData
+        const reviewsList = reviewsData.list || reviewsData
+
+        setPromoted(Array.isArray(promotedList) ? promotedList : [])
+        setReviews(Array.isArray(reviewsList) ? reviewsList : [])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setError(err.toString())
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <div style={{ padding: 20 }}>Chargement des données manga depuis l'API...</div>
+  if (error) return <div style={{ padding: 20, color: 'red' }}>Erreur: {error}</div>
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Données Manga depuis l'API Nautiljon</h1>
+
+      <section style={{ marginTop: 20 }}>
+        <h2>Promoted Manga</h2>
+        {promoted.length === 0 ? (
+          <p>Aucun promoted manga trouvé.</p>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+            {promoted.map((item, i) => {
+              const picture = normalizeUrl(item.picture || item.image || null)
+              const title = item.title || item.item || 'Titre inconnu'
+              let href = item.link || item.path || '#'
+              if (href && href.startsWith('/')) href = 'https://www.nautiljon.com' + href
+
+              return (
+                <div key={i} style={{ width: 220, border: '1px solid #eee', padding: 8, borderRadius: 6 }}>
+                  {picture ? (
+                    <img src={picture} alt={title} style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 4 }} />
+                  ) : (
+                    <div style={{ width: '100%', height: 140, background: '#f3f3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <small>Pas d'image</small>
+                    </div>
+                  )}
+                  <h3 style={{ fontSize: 14, margin: '8px 0' }}>{title}</h3>
+                  <a href={href} target="_blank" rel="noreferrer">Voir sur Nautiljon</a>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      <section style={{ marginTop: 30 }}>
+        <h2>Latest Manga Reviews</h2>
+        {reviews.length === 0 ? (
+          <p>Aucune review manga trouvée.</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            {reviews.map((r, i) => {
+              const picture = normalizeUrl(r.picture || (r.item && r.item.picture) || null)
+              const itemName = r.item && typeof r.item === 'string' ? r.item : (r.item && r.item.title) || 'Nom inconnu'
+              const reviewHref = r.id ? `https://www.nautiljon.com/site/show_review.php?id=${r.id}` : '#'
+
+              return (
+                <div key={i} style={{ border: '1px solid #eee', padding: 8, borderRadius: 6 }}>
+                  {picture ? (
+                    <img src={picture} alt={itemName} style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 4 }} />
+                  ) : (
+                    <div style={{ width: '100%', height: 140, background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <small>Pas d'image</small>
+                    </div>
+                  )}
+                  <strong style={{ display: 'block', marginTop: 8 }}>{itemName}</strong>
+                  <div style={{ marginTop: 6 }}>
+                    <a href={reviewHref} target="_blank" rel="noreferrer">Voir la critique</a>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
+
+export default App

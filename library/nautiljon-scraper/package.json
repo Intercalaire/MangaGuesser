@@ -1,0 +1,40 @@
+{
+  "name": "nautiljon-scraper",
+  "version": "1.1.0",
+  "description": "Nautiljon's anime and manga website scraping tool",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "node ./test/index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barthofu/nautiljon-scraper.git"
+  },
+  "keywords": [
+    "nautiljon",
+    "anime",
+    "manga",
+    "scraper",
+    "scrape",
+    "scraping",
+    "tool",
+    "french",
+    "france"
+  ],
+  "author": "Bartholomé Gili",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barthofu/nautiljon-scraper/issues"
+  },
+  "homepage": "https://github.com/barthofu/nautiljon-scraper#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "remove-accents": "^0.4.2",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  }
+}
