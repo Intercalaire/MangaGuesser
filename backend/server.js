@@ -19,13 +19,13 @@ function loadDatabase() {
   try {
     const data = fs.readFileSync(DB_PATH, 'utf8');
     mangaDatabase = JSON.parse(data);
-    console.log(`✅ Base de données chargée: ${mangaDatabase.mangas.length} mangas`);
-    
+    console.log(`Base de données chargée: ${mangaDatabase.mangas.length} mangas`);
+
     if (mangaDatabase.mangas.length === 0) {
-      console.warn('⚠️  Base de données vide! Lancez: node scrape-to-db.js 200');
+      console.warn('Base de données vide! Lancez: node scrape-to-db.js 200');
     }
   } catch (error) {
-    console.error('❌ Erreur chargement base:', error.message);
+    console.error('Erreur chargement base:', error.message);
     mangaDatabase = { mangas: [] };
   }
 }
@@ -45,10 +45,10 @@ function getRandomManga() {
   }
 
   // Filtrer pour éviter le même manga
-  let candidates = lastMangaUrl 
+  let candidates = lastMangaUrl
     ? mangaDatabase.mangas.filter(m => m.url !== lastMangaUrl)
     : mangaDatabase.mangas;
-  
+
   // Si on a filtré tous les mangas (cas rare), utiliser toute la base
   if (candidates.length === 0) {
     candidates = mangaDatabase.mangas;
@@ -57,9 +57,9 @@ function getRandomManga() {
   // Sélectionner aléatoirement
   const randomIndex = Math.floor(Math.random() * candidates.length);
   const manga = candidates[randomIndex];
-  
+
   lastMangaUrl = manga.url;
-  
+
   return manga;
 }
 
@@ -70,16 +70,16 @@ app.get('/manga', async (req, res) => {
     res.json(manga);
   } catch (error) {
     console.error('Erreur:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Erreur lors de la récupération du manga',
-      details: error.message 
+      details: error.message
     });
   }
 });
 
 // Route de santé
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     dbSize: mangaDatabase.mangas.length,
     lastUpdate: mangaDatabase.lastUpdate
@@ -89,9 +89,9 @@ app.get('/health', (req, res) => {
 // Route pour recharger la base (après avoir lancé le scraper)
 app.post('/reload-db', (req, res) => {
   reloadDatabase();
-  res.json({ 
-    success: true, 
-    mangaCount: mangaDatabase.mangas.length 
+  res.json({
+    success: true,
+    mangaCount: mangaDatabase.mangas.length
   });
 });
 
@@ -101,7 +101,7 @@ app.get('/db-stats', (req, res) => {
   mangaDatabase.mangas.forEach(m => {
     stats[m.type] = (stats[m.type] || 0) + 1;
   });
-  
+
   res.json({
     total: mangaDatabase.mangas.length,
     lastUpdate: mangaDatabase.lastUpdate,
@@ -111,9 +111,9 @@ app.get('/db-stats', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Backend lancé sur http://localhost:${PORT}`);
-  console.log(`📚 Base: ${mangaDatabase.mangas.length} mangas disponibles`);
-  console.log(`\n📝 Commandes utiles:`);
+  console.log(`Backend lancé sur http://localhost:${PORT}`);
+  console.log(`Base: ${mangaDatabase.mangas.length} mangas disponibles`);
+  console.log(`\nCommandes utiles:`);
   console.log(`   - Remplir la base: node scrape-to-db.js 200`);
   console.log(`   - Stats: GET http://localhost:${PORT}/db-stats`);
   console.log(`   - Recharger: POST http://localhost:${PORT}/reload-db`);

@@ -110,21 +110,21 @@ export function getButtonSizeClasses(isMobile) {
 export function getCardSizeClasses(isMobile, isTablet, hasAnswered) {
   if (isMobile) {
     return {
-      width: 'w-[90vw] max-w-sm',
-      imageHeight: hasAnswered ? 'h-[200px]' : 'h-[280px]',
-      padding: 'p-4',
+      width: 'w-[85vw] max-w-sm',
+      imageHeight: hasAnswered ? 'h-[180px]' : 'h-[250px]',
+      padding: 'p-3',
       gap: 'gap-2',
-      titleSize: 'text-xl',
+      titleSize: 'text-lg',
       descSize: 'text-xs',
     };
   }
   if (isTablet) {
     return {
-      width: 'w-[85vw] max-w-2xl',
-      imageHeight: hasAnswered ? 'h-[280px]' : 'h-[350px]',
-      padding: 'p-6',
-      gap: 'gap-3',
-      titleSize: 'text-2xl',
+      width: 'w-[70vw] max-w-xl',
+      imageHeight: hasAnswered ? 'h-[220px]' : 'h-[280px]',
+      padding: 'p-5',
+      gap: 'gap-2',
+      titleSize: 'text-xl',
       descSize: 'text-sm',
     };
   }
